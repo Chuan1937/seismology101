@@ -1,14 +1,13 @@
 # macOS 配置指南
 
-- 本节贡献者: {{田冬冬}}、{{姚家园}}、{{王亮}}、{{何星辰}}
+- 本节贡献者: {{田冬冬}}、{{姚家园}}、{{何星辰}}、{{王亮}}
 - 最近更新日期: 2025-10-12
 - 预计花费时间: 120 分钟
 
 ---
 
-:::{warning}
-本节内容基于作者在 macOS Sequoia (15) 上的配置经验，可能适用于macOS Monterey (12)
-macOS Ventura (13) 和 macOS Sonoma (14)，但不一定适用于更老的 macOS 版本。
+:::{note}
+本节内容基于作者在 macOS Sequoia (15) 上的配置经验，仅适用于 Apple M 系列芯片。
 欢迎用户帮助我们更新本文以适配 macOS 最新版本。
 :::
 
@@ -65,26 +64,29 @@ Homebrew 的安装脚本及相关资源托管在 [GitHub](https://github.com/) �
 读者应根据自己所处的地理位置使用相应的安装说明。
 
 打开终端，执行如下命令，并根据终端提示进行操作，以安装 Homebrew。
+Homebrew 以及通过 Homebrew 安装的所有软件包都会被安装到目录 {file}`/opt/homebrew` 下。
 ::::{tab-set}
 :::{tab-item} 国内用户
-在安装前请先设置中科大镜像环境变量，以确保安装及后续更新均从国内镜像获取：
-```
-# 设置中科大镜像环境变量
-export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.ustc.edu.cn/brew.git"
-export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.ustc.edu.cn/homebrew-core.git"
-export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles"
-export HOMEBREW_API_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles/api"
-
-# 执行安装脚本
-/bin/bash -c "$(curl -fsSL https://mirrors.ustc.edu.cn/misc/brew-install.sh)"
-```
-
-安装完成后，为使 brew 命令生效，请执行：
+配置使用 Homebrew 的中科大镜像源
 
 ```
-echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-eval "$(/opt/homebrew/bin/brew shellenv)"
+# 将 Homebrew 镜像配置写入 .zshrc 文件
+$ echo 'export HOMEBREW_BREW_GIT_REMOTE="https://mirrors.ustc.edu.cn/brew.git"' >> ~/.zshrc
+$ echo 'export HOMEBREW_CORE_GIT_REMOTE="https://mirrors.ustc.edu.cn/homebrew-core.git"' >> ~/.zshrc
+$ echo 'export HOMEBREW_BOTTLE_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles"' >> ~/.zshrc
+$ echo 'export HOMEBREW_API_DOMAIN="https://mirrors.ustc.edu.cn/homebrew-bottles/api"' >> ~/.zshrc
+
+# 刷新配置
+$ source ~/.zshrc
 ```
+
+安装 Homebrew
+
+```
+$ /bin/bash -c "$(curl -fsSL https://mirrors.ustc.edu.cn/misc/brew-install.sh)"
+```
+
+国内用户的 Homebrew 安装和配置指南来自于 [USTC Mirror Help](https://mirrors.ustc.edu.cn/help/brew.git.html)。
 :::
 
 :::{tab-item} 国外用户
@@ -94,13 +96,15 @@ $ /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/
 :::
 ::::
 
-:::{note}
-针对国内用户的 Homebrew 安装和配置指南来自于 [USTC Mirror Help](https://mirrors.ustc.edu.cn/help/brew.git.html)
-:::
+安装完成后，需要将 brew 命令的路径添加到配置文件中。
 
-:::{note}
-Homebrew 以及通过 Homebrew 安装的所有软件包都会被安装到特定目录下，通常是 {file}/usr/local/homebrew 目录。而在 Apple M 系列（M1/M2/M3/M4）芯片的 Mac 下，这一目录为 {file}/opt/homebrew/。
-:::
+```
+# 将 Homebrew 命令路径写入 .zshrc 文件
+$ echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zshrc
+
+# 刷新配置
+$ source ~/.zshrc
+```
 
 #### 使用 Homebrew
 
@@ -136,39 +140,33 @@ Homebrew 用户也可以访问网站 <https://formulae.brew.sh/> 查看和搜索
 更详细的解释请查看[官方文档](https://docs.brew.sh/Formula-Cookbook#homebrew-terminology)。
 
 `brew`
-
 : Homebrew 提供的命令，用于查询、安装、卸载、升级以及管理软件包。
 
 Formula
-
 : 软件的描述文件，包含了软件的基本信息和编译安装方法。
   Homebrew 根据 Formula 提供的信息，即可编译或安装软件。
   每个软件对应一个 Formula。例如，git 对应的 Formula 是
-  {file}`/usr/local/Homebrew/Library/Taps/homebrew/homebrew-core/Formula/git.rb`。
+  ​{file}`/opt/homebrew/Library/Taps/homebrew/homebrew-core/Formula/git.rb`。
 
 Bottle
-
 : 预先编译好的二进制软件包。使用 Bottle 安装软件，
   比从源码编译和安装更快。如果一个软件仓库包含预编译的软件包，使用 `brew install`
   时会自动使用它。
 
 Tap
-
 : 一个含有一系列软件的 git 仓库。使用
   [brew tap](https://docs.brew.sh/Taps#the-brew-tap-command)
   命令查看已启用的仓库列表或启用仓库。已启用的仓库位于
-  {file}`/usr/local/Homebrew/Library/Taps/homebrew/` 目录。
+  ​{file}`/opt/homebrew/Library/Taps/homebrew` 目录。
   默认启用的软件仓库有 [homebrew-core](https://github.com/Homebrew/homebrew-core)
   和 [homebrew-cask](https://github.com/Homebrew/homebrew-cask)。
   其中，homebrew-core 是内置核心仓库，
   homebrew-cask 仓库则含有各种 macOS 系统下带图形界面的应用程序。
 
 Cellar
-
 : 所有软件的安装目录，即 {file}`/opt/homebrew/Cellar`。
 
 Keg
-
 : 某一软件的安装目录，如 {file}`/opt/homebrew/Cellar/git/2.45.0`。
 :::
 
@@ -176,27 +174,18 @@ Keg
 
 ### C/C++
 
-Command Line Tools for Xcode 已经提供了 C/C++ 编译器和相关工具，因而无需单独安装
-C/C++ 编译器。
+Command Line Tools for Xcode 已经提供了 C/C++ 编译器和相关工具，因此无需再单独安装 C/C++ 编译器。
+需要注意的是，其提供的 C/C++ 编译器实际上是 [Apple Clang](https://clang.llvm.org/)，
+而非 [GCC](https://gcc.gnu.org/)（GNU Compiler Collection）。尽管两者存在一定差异，
+但 Apple Clang 足以满足大多数科研场景中编译 C/C++ 程序的需求，一般情况下无需再安装 GCC。
 
-:::{dropdown} GCC 编译器
-:color: info
-:icon: info
-
-Command Line Tools for Xcode 提供的 C/C++ 编译器本质上是
-[Apple Clang](https://clang.llvm.org/docs/UsersManual.html) 编译器，
-其与 [GCC](https://gcc.gnu.org/) 编译器有差异，但足以满足日常科研中编译 C/C++ 程序的需求。
-因而一般用户无需再安装 GCC 编译器。
-
-由于特殊原因需要安装 GCC 编译器的用户（例如需要使用 GCC 特有的功能和选项），
-可以使用如下命令安装:
-
+:::{note}
+若确有需要（例如希望与 Linux 上的 GCC 环境保持一致），可以通过 Homebrew 安装 GCC：
 ```
 $ brew install gcc
 ```
-
-通过 Homebrew 安装的 GCC 提供了命令 `gcc-15` 和 `g++-15`
-（`15` 是 GCC 的主版本号）以避免替换 Command Line Tools for Xcode 提供的 `gcc` 和 `g++` 命令。
+通过 Homebrew 安装的 GCC 提供了命令 `gcc-15` 和 `g++-15` （`15` 是 GCC 的主版本号）
+以避免替换 Command Line Tools for Xcode 提供的 `gcc` 和 `g++` 命令。
 用户如果想使用 GCC 编译器，可以在编译代码时显式指定使用 `gcc-15` 和 `g++-15` 命令，
 或者在 Homebrew 的 bin 目录下创建软链接:
 
@@ -212,8 +201,9 @@ $ ln -s g++-15 g++
 
 ### Fortran
 
-Homebrew 不再提供独立 gfortran 包，它已经被集成到 `gcc` 中。
-
+[GNU Fortran](https://gcc.gnu.org/fortran/) 编译器是 macOS 下最常用的 Fortran 编译器，
+其提供了 `gfortran` 命令。 GNU Fortran 是 GCC 套件的一部分，因而通过安装 GCC 即可获得
+GNU Fortran 编译器：
 ```
 $ brew install gcc
 ```
